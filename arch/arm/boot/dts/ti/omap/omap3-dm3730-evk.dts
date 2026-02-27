@@ -73,6 +73,17 @@
 			OMAP3_CORE1_IOPAD(0x2184, PIN_INPUT_PULLUP | MUX_MODE4)
 		>;
 	};
+
+	mmc1_pins: mmc1-pins {
+	    pinctrl-single,pins = <
+		OMAP3_CORE1_IOPAD(0x2144, PIN_INPUT_PULLUP | MUX_MODE0) /* mmc1_clk */
+		OMAP3_CORE1_IOPAD(0x2146, PIN_INPUT_PULLUP | MUX_MODE0) /* mmc1_cmd */
+		OMAP3_CORE1_IOPAD(0x2148, PIN_INPUT_PULLUP | MUX_MODE0) /* mmc1_dat0 */
+		OMAP3_CORE1_IOPAD(0x214a, PIN_INPUT_PULLUP | MUX_MODE0) /* mmc1_dat1 */
+		OMAP3_CORE1_IOPAD(0x214c, PIN_INPUT_PULLUP | MUX_MODE0) /* mmc1_dat2 */
+		OMAP3_CORE1_IOPAD(0x214e, PIN_INPUT_PULLUP | MUX_MODE0) /* mmc1_dat3 */
+	    >;
+	};
 };
 
 &gpmc {
@@ -114,4 +125,15 @@
 		gpmc,wr-data-mux-bus-ns = <0>;
 		gpmc,wr-access-ns = <0>;
 	};
+};
+
+&mmc1 {
+    status = "okay";
+    pinctrl-names = "default";
+    pinctrl-0 = <&mmc1_pins>;
+    vmmc-supply = <&vmmc1>;
+    bus-width = <4>;
+    cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_LOW>;
+    cd-debounce-delay-ms = <500>;
+    broken-cd;
 };
