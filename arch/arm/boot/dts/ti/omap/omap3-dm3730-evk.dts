@@ -22,13 +22,12 @@
 		clock-frequency = <26000000>;
 	};
 
-    hsusb1_phy: hsusb1-phy {
-        compatible = "usb-nop-xceiv";
-        #phy-cells = <0>;
-    };
+	hsusb1_phy: hsusb1-phy {
+		compatible = "usb-nop-xceiv";
+		#phy-cells = <0>;
+	};
 };
 
-/* I2C1 + TWL4030 definition FIRST */
 &i2c1 {
 	pinctrl-names = "default";
 	pinctrl-0 = <&i2c1_pins>;
@@ -36,18 +35,74 @@
 
 	twl: twl@48 {
 		reg = <0x48>;
-		interrupts = <7>;
 		interrupt-parent = <&intc>;
+		interrupts = <7>;
 		clocks = <&hfclk_26m>;
 		clock-names = "fck";
 	};
 };
 
-/* NOW include the TWL definitions */
 #include "twl4030.dtsi"
 #include "twl4030_omap3.dtsi"
 
-/* UART3 */
+&omap3_pmx_core {
+
+	i2c1_pins: i2c1-pins {
+		pinctrl-single,pins = <
+			OMAP3_CORE1_IOPAD(0x21ba, PIN_INPUT | MUX_MODE0)
+			OMAP3_CORE1_IOPAD(0x21bc, PIN_INPUT | MUX_MODE0)
+		>;
+	};
+
+	uart3_pins: uart3-pins {
+		pinctrl-single,pins = <
+			OMAP3_CORE1_IOPAD(0x219e, PIN_OUTPUT | MUX_MODE0)
+			OMAP3_CORE1_IOPAD(0x21a0, PIN_INPUT  | MUX_MODE0)
+		>;
+	};
+
+	dm9000_pins: dm9000-pins {
+		pinctrl-single,pins = <
+			OMAP3_CORE1_IOPAD(0x20ba, PIN_OUTPUT | MUX_MODE0)
+			OMAP3_CORE1_IOPAD(0x2184, PIN_INPUT_PULLUP | MUX_MODE4)
+		>;
+	};
+
+	mmc1_pins: mmc1-pins {
+		pinctrl-single,pins = <
+			OMAP3_CORE1_IOPAD(0x2144, PIN_INPUT_PULLUP | MUX_MODE0)
+			OMAP3_CORE1_IOPAD(0x2146, PIN_INPUT_PULLUP | MUX_MODE0)
+			OMAP3_CORE1_IOPAD(0x2148, PIN_INPUT_PULLUP | MUX_MODE0)
+			OMAP3_CORE1_IOPAD(0x214a, PIN_INPUT_PULLUP | MUX_MODE0)
+			OMAP3_CORE1_IOPAD(0x214c, PIN_INPUT_PULLUP | MUX_MODE0)
+			OMAP3_CORE1_IOPAD(0x214e, PIN_INPUT_PULLUP | MUX_MODE0)
+		>;
+	};
+};
+
+&omap3_pmx_core2 {
+
+	hsusb1_pins: hsusb1-pins {
+		pinctrl-single,pins = <
+			OMAP3430_CORE2_IOPAD(0x25d8, PIN_OUTPUT | MUX_MODE3)
+			OMAP3430_CORE2_IOPAD(0x25da, PIN_OUTPUT | MUX_MODE3)
+
+			OMAP3430_CORE2_IOPAD(0x25dc, PIN_INPUT  | MUX_MODE3)
+			OMAP3430_CORE2_IOPAD(0x25de, PIN_INPUT  | MUX_MODE3)
+			OMAP3430_CORE2_IOPAD(0x25e0, PIN_INPUT  | MUX_MODE3)
+			OMAP3430_CORE2_IOPAD(0x25e2, PIN_INPUT  | MUX_MODE3)
+			OMAP3430_CORE2_IOPAD(0x25e4, PIN_INPUT  | MUX_MODE3)
+			OMAP3430_CORE2_IOPAD(0x25e6, PIN_INPUT  | MUX_MODE3)
+			OMAP3430_CORE2_IOPAD(0x25e8, PIN_INPUT  | MUX_MODE3)
+			OMAP3430_CORE2_IOPAD(0x25ea, PIN_INPUT  | MUX_MODE3)
+
+			OMAP3430_CORE2_IOPAD(0x25ec, PIN_INPUT  | MUX_MODE3)
+			OMAP3430_CORE2_IOPAD(0x25ee, PIN_INPUT  | MUX_MODE3)
+		>;
+	};
+};
+
+
 &uart3 {
 	status = "okay";
 	pinctrl-names = "default";
@@ -55,82 +110,24 @@
 	interrupts-extended = <&intc 74 &omap3_pmx_core OMAP3_UART3_RX>;
 };
 
-&omap3_pmx_core {
-	i2c1_pins: i2c1-pins {
-		pinctrl-single,pins = <
-			OMAP3_CORE1_IOPAD(0x21ba, PIN_INPUT | MUX_MODE0) /* i2c1_scl */
-			OMAP3_CORE1_IOPAD(0x21bc, PIN_INPUT | MUX_MODE0) /* i2c1_sda */
-		>;
-	};
-
-	uart3_pins: uart3-pins {
-		pinctrl-single,pins = <
-			OMAP3_CORE1_IOPAD(0x219e, PIN_OUTPUT | MUX_MODE0) /* uart3_tx */
-			OMAP3_CORE1_IOPAD(0x21a0, PIN_INPUT  | MUX_MODE0) /* uart3_rx */
-		>;
-	};
-
-	dm9000_pins: dm9000-pins {
-		pinctrl-single,pins = <
-			/* gpmc_ncs6 - must be MUX_MODE0 so GPMC drives it */
-			OMAP3_CORE1_IOPAD(0x20ba, PIN_OUTPUT | MUX_MODE0)
-			/* mcbsp4_clkx.gpio_152 - DM9000 INT */
-			OMAP3_CORE1_IOPAD(0x2184, PIN_INPUT_PULLUP | MUX_MODE4)
-		>;
-	};
-
-	mmc1_pins: mmc1-pins {
-	    pinctrl-single,pins = <
-		OMAP3_CORE1_IOPAD(0x2144, PIN_INPUT_PULLUP | MUX_MODE0) /* mmc1_clk */
-		OMAP3_CORE1_IOPAD(0x2146, PIN_INPUT_PULLUP | MUX_MODE0) /* mmc1_cmd */
-		OMAP3_CORE1_IOPAD(0x2148, PIN_INPUT_PULLUP | MUX_MODE0) /* mmc1_dat0 */
-		OMAP3_CORE1_IOPAD(0x214a, PIN_INPUT_PULLUP | MUX_MODE0) /* mmc1_dat1 */
-		OMAP3_CORE1_IOPAD(0x214c, PIN_INPUT_PULLUP | MUX_MODE0) /* mmc1_dat2 */
-		OMAP3_CORE1_IOPAD(0x214e, PIN_INPUT_PULLUP | MUX_MODE0) /* mmc1_dat3 */
-	    >;
-	};
-};
-
-&omap3_pmx_core2 {
-    hsusb1_pins: hsusb1-pins {
-        pinctrl-single,pins = <
-            OMAP3430_CORE2_IOPAD(0x25d8, PIN_OUTPUT | MUX_MODE3)   /* hsusb1_stp */
-            OMAP3430_CORE2_IOPAD(0x25da, PIN_OUTPUT | MUX_MODE3)   /* hsusb1_clk */
-
-            OMAP3430_CORE2_IOPAD(0x25dc, PIN_INPUT  | MUX_MODE3)   /* hsusb1_data0 */
-            OMAP3430_CORE2_IOPAD(0x25de, PIN_INPUT  | MUX_MODE3)   /* hsusb1_data1 */
-
-            OMAP3430_CORE2_IOPAD(0x25e0, PIN_INPUT  | MUX_MODE3)   /* hsusb1_data2 */
-            OMAP3430_CORE2_IOPAD(0x25e2, PIN_INPUT  | MUX_MODE3)   /* hsusb1_data7 */
-
-            OMAP3430_CORE2_IOPAD(0x25e4, PIN_INPUT  | MUX_MODE3)   /* hsusb1_data4 */
-            OMAP3430_CORE2_IOPAD(0x25e6, PIN_INPUT  | MUX_MODE3)   /* hsusb1_data5 */
-
-            OMAP3430_CORE2_IOPAD(0x25e8, PIN_INPUT  | MUX_MODE3)   /* hsusb1_data6 */
-            OMAP3430_CORE2_IOPAD(0x25ea, PIN_INPUT  | MUX_MODE3)   /* hsusb1_data3 */
-
-            OMAP3430_CORE2_IOPAD(0x25ec, PIN_INPUT  | MUX_MODE3)   /* hsusb1_dir */
-            OMAP3430_CORE2_IOPAD(0x25ee, PIN_INPUT  | MUX_MODE3)   /* hsusb1_nxt */
-        >;
-    };
-
-};
 
 &gpmc {
-    ranges = <6 0 0x2c000000 0x1000000>;
+	ranges = <6 0 0x2c000000 0x1000000>;
 
 	ethernet@6,0 {
 		compatible = "davicom,dm9000";
-		reg =  <6 0x000 2>,
-		       <6 0x400 2>; /* CS6, offset 0 and 0x400, IO size 2 */
+		reg = <6 0x000 2>, <6 0x400 2>;
 		bank-width = <2>;
+
 		interrupt-parent = <&gpio1>;
 		interrupts = <25 IRQ_TYPE_LEVEL_LOW>;
+
 		davicom,no-eeprom;
 
 		gpmc,mux-add-data = <0>;
 		gpmc,device-width = <1>;
 		gpmc,wait-pin = <0>;
+
 		gpmc,cycle2cycle-samecsen;
 		gpmc,cycle2cycle-diffcsen;
 
@@ -158,25 +155,25 @@
 };
 
 &mmc1 {
-    status = "okay";
-    pinctrl-names = "default";
-    pinctrl-0 = <&mmc1_pins>;
-    vmmc-supply = <&vmmc1>;
-    bus-width = <4>;
-    cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_LOW>;
-    cd-debounce-delay-ms = <500>;
-    broken-cd;
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&mmc1_pins>;
+	vmmc-supply = <&vmmc1>;
+	bus-width = <4>;
+	cd-gpios = <&twl_gpio 0 GPIO_ACTIVE_LOW>;
+	cd-debounce-delay-ms = <500>;
+	broken-cd;
 };
 
 &usbhshost {
-    status = "okay";
-    port1-mode = "ehci-phy";
+	status = "okay";
+	port1-mode = "ehci-phy";
 };
 
 &usbhsehci {
-    status = "okay";
-    pinctrl-names = "default";
-    pinctrl-0 = <&hsusb1_pins>;
-    phys = <&hsusb1_phy>;
-    phy-names = "usb";
+	status = "okay";
+	pinctrl-names = "default";
+	pinctrl-0 = <&hsusb1_pins>;
+	phys = <&hsusb1_phy>;
+	phy-names = "usb";
 };
